@@ -21,8 +21,8 @@ public abstract class GameObject {
         return height;
     }
 
-    public int getDx() {
-        return dx;
+    public int getX() {
+        return x;
     }
 
     public int getWidth() {

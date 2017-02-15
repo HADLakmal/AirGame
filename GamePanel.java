@@ -8,6 +8,8 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import java.util.ArrayList;
+
 import dalvik.system.PathClassLoader;
 
 /**
@@ -18,10 +20,12 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback
     private MainThread thread;
     private Background background;
     private PlayerTank playerTank;
+    private ArrayList<Smoke> smokes;
 
     public static final int width = 1300;
     public static final int height = 860;
     public static final int moveSpeed = -5;
+    private long smokeStart;
 
     public GamePanel(Context context){
         super(context);
@@ -42,7 +46,10 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback
         //add Background
         background = new Background(BitmapFactory.decodeResource(getResources(), R.drawable.grass));
         //iniziate the player
-        playerTank = new PlayerTank(BitmapFactory.decodeResource(getResources(),R.drawable.tank),100,100,8);
+        playerTank = new PlayerTank(BitmapFactory.decodeResource(getResources(),R.drawable.tank),285,300,8);
+        //add smoke
+        smokes = new ArrayList<Smoke>();
+        smokeStart = System.nanoTime();
         //we can safetly strat the game loop
         thread.setRunning(true);
         thread.start();
@@ -58,13 +65,16 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback
 
         //destroy
         boolean retry = true;
-        while (retry){
+        int counter = 0;
+        while (retry && counter<1000){
+            counter++;
             try {
                 thread.setRunning(false);
                 thread.join();
+                retry=false;
             }catch (InterruptedException e){
                 e.printStackTrace();
-                retry=false;
+
             }
         }
     }
@@ -75,12 +85,12 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback
                 playerTank.setPlaying(true);
             }
             else{
-                playerTank.setDown(true);
+                playerTank.setUp(true);
             }
             return true;
         }
         if (event.getAction()==MotionEvent.ACTION_UP){
-            playerTank.setUp(true);
+            playerTank.setUp(false);
             return true;
         }
         return super.onTouchEvent(event);
@@ -91,6 +101,20 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback
         if (playerTank.getPlaying()) {
             background.update();
             playerTank.update();
+
+            //smoke adding to update
+            long elapsed = (System.nanoTime()-smokeStart)/1000000;
+            if(elapsed>120){
+                smokes.add(new Smoke(playerTank.getX(),playerTank.getY()+10));
+                smokeStart = System.nanoTime();
+            }
+            for (int i =0; i<smokes.size();i++){
+                smokes.get(i).update();
+                if(smokes.get(i).getX()<-10){
+                    smokes.remove(i);
+                }
+
+            }
         }
     }
     @Override
@@ -100,10 +124,18 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback
         if (canvas!=null){
 
             final int savedState = canvas.save();
-            canvas.scale(scaleFactorX,scaleFactorY);
+
+            canvas.scale(scaleFactorX, scaleFactorY);
             background.draw(canvas);
+
             playerTank.draw(canvas);
+
+            for(Smoke s : smokes){
+                s.draw(canvas);
+            }
+
             canvas.restoreToCount(savedState);
+
         }
     }
 

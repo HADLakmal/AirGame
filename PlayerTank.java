@@ -10,7 +10,6 @@ public class PlayerTank extends GameObject {
 
     private Bitmap spriteSheet;
     private int score;
-    private double dya;
     private boolean up;
     private boolean down;
     private boolean playing;
@@ -28,10 +27,10 @@ public class PlayerTank extends GameObject {
         //add Tank image into a array
         Bitmap[] image = new Bitmap[numFrame];
         for (int r=0;r<image.length;r++){
-            image[r]=Bitmap.createBitmap(spriteSheet,r*width,0,width,height);
+            image[r]=Bitmap.createBitmap(spriteSheet,0,r*height,width,height);
         }
         animation.setFrames(image);
-        animation.setDelay(10);
+        animation.setDelay(100);
         startTime = System.nanoTime();
     }
     public void setUp(boolean b){
@@ -49,17 +48,16 @@ public class PlayerTank extends GameObject {
         }
         animation.update();
         if (up){
-            dy = (int)(dya-=1.1);
+            dy+=1;
 
         }
         else if (down){
-            dy = (int)(dya+=1.1);
+            dy+=1;
         }
         if (dy>14) dy=14;
         if (dy<-14) dy = -14;
 
-        y+=dy*2;
-        dy=0;
+       // y+=dy*2;
 
     }
     public void draw(Canvas canvas){
@@ -73,6 +71,6 @@ public class PlayerTank extends GameObject {
 
     }
     public void setPlaying(Boolean b){playing = b;}
-    public void resetDYA(){dya=0;}
+    public void resetDYA(){dy=0;}
     public void resetScore(){score=0;}
 }
