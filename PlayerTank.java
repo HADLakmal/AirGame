@@ -35,10 +35,13 @@ public class PlayerTank extends GameObject {
     }
     public void setUp(boolean b){
 
-        up = b;
+       up = b;
     }
-    public void setDown(boolean b){
-        down = b;
+    public void setDown(boolean b)
+    {
+
+        down =b;
+
     }
     public void update(){
         long elapsed =(System.nanoTime()-startTime)/1000000;
@@ -47,17 +50,14 @@ public class PlayerTank extends GameObject {
             startTime = System.nanoTime();
         }
         animation.update();
-        if (up){
-            dy+=1;
+        if (up) dy+=1;
+        if (down) dy+=1;
 
-        }
-        else if (down){
-            dy+=1;
-        }
         if (dy>14) dy=14;
         if (dy<-14) dy = -14;
 
-       // y+=dy*2;
+       y+=dy*2;
+        dy=0;
 
     }
     public void draw(Canvas canvas){
