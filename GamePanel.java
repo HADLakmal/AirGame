@@ -2,6 +2,7 @@ package com.example.damindu.airgame;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Rect;
@@ -35,6 +36,20 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback
     public static final int moveSpeed = -5;
     Random rand = new Random();
 
+    ArrayList<TopBorders> topBorderses;
+    ArrayList<BotBorder> botBorders;
+
+    public int maxBorHeight;
+    public int minBorHeight;
+
+    private boolean topDown = true;
+    private boolean botDown = true;
+
+    //increase to slow down difficulty
+    private int difficulty = 20;
+
+    private boolean newGamestart;
+
 
     public GamePanel(Context context){
         super(context);
@@ -63,6 +78,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback
         bullets = new ArrayList<Bullet>();
         bulletStrat = System.nanoTime();
 
+        //Borders init
+        topBorderses = new ArrayList<TopBorders>();
+        botBorders = new ArrayList<BotBorder>();
 
         //we can safetly strat the game loop
         thread.setRunning(true);
@@ -116,16 +134,26 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback
             background.update();
             playerTank.update();
 
+            //max and min border set
+            maxBorHeight = 30+playerTank.getScore()/difficulty;
+            //only maximum for half of the screen
+            if (maxBorHeight>height/4) maxBorHeight = height/4;
+            minBorHeight = 5 + playerTank.getScore()/difficulty;
+
+            //update borders
+            updateBottomBorder();
+            updateTopBorder();
+
             //bullet adding to update
             long bulletTime = (System.nanoTime()-bulletStrat)/1000000;
             if (bulletTime>(2000-playerTank.getScore()/4))
             {
                 //first bullet always going down the middle
-                if (bullets.size()==0) bullets.add(new Bullet(BitmapFactory.decodeResource(getResources(),R.drawable.bullet),width+10,height/2,74*3,89,playerTank.getScore(),7));
+                if (bullets.size()==0) bullets.add(new Bullet(BitmapFactory.decodeResource(getResources(),R.drawable.bullet),width+10,height/2,74*3,90,playerTank.getScore(),7));
                 else
                 {
 
-                    bullets.add(new Bullet(BitmapFactory.decodeResource(getResources(),R.drawable.bullet),width+10,(int)((rand.nextDouble()*height)),74*3,89,playerTank.getScore(),7));
+                    bullets.add(new Bullet(BitmapFactory.decodeResource(getResources(),R.drawable.bullet),width+10,(int)((rand.nextDouble()*height)),74*3,90,playerTank.getScore(),7));
                 }
                 // reset the timer
                 bulletStrat = System.nanoTime();
@@ -149,8 +177,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback
 
             //smoke adding to update
             long elapsed = (System.nanoTime()-smokeStart)/1000000;
-            if(elapsed>120){
-                smokes.add(new Smoke(playerTank.getX(),playerTank.getY()+10));
+            if(elapsed>400){
+                smokes.add(new Smoke(playerTank.getX()+50,playerTank.getY()+170));
                 smokeStart = System.nanoTime();
             }
             for (int i =0; i<smokes.size();i++){
@@ -160,6 +188,11 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback
                 }
 
             }
+        }
+        else {
+            newGamestart =false;
+            if (!newGamestart)
+            newGame();
         }
     }
     @Override
@@ -184,6 +217,10 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback
                 bullet.draw(canvas);
             }
 
+            //draw the boders
+            for (TopBorders t : topBorderses) t.draw(canvas);
+            for (BotBorder b : botBorders) b.draw(canvas);
+
             canvas.restoreToCount(savedState);
 
         }
@@ -192,6 +229,92 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback
     {
         if (Rect.intersects(bullet.getRectangle(),player.getRectangle())) return true;
         return false;
+    }
+
+    public void updateBottomBorder()
+    {
+
+        //every 100 point border up
+        if (playerTank.getScore()%100==0) botBorders.add(new BotBorder(BitmapFactory.decodeResource(getResources(),R.drawable.brick02),botBorders.get(botBorders.size()-1).getX()+20,(int)((rand.nextDouble()*maxBorHeight)+(height-maxBorHeight))));
+
+        for (int i=0 ; botBorders.size()>i;i++)
+        {
+            botBorders.get(i).update();
+            if (botBorders.get(i).getX()<-20)
+            {
+                botBorders.remove(i);
+                if (botBorders.get(botBorders.size()-1).getHeight()>=maxBorHeight)
+                {
+                    botDown = false;
+                }
+                if (botBorders.get(botBorders.size()-1).getHeight()<=minBorHeight)
+                {
+                    botDown = true;
+                }
+                //add larger height to border
+                if (botDown){
+
+                    botBorders.add(new BotBorder(BitmapFactory.decodeResource(getResources(), R.drawable.brick02),botBorders.get(botBorders.size()-1).getX()+20,botBorders.get(botBorders.size()-1).getY()+1));
+                }
+                //add smaller height
+                else {
+
+                    botBorders.add(new BotBorder(BitmapFactory.decodeResource(getResources(),R.drawable.brick02),botBorders.get(botBorders.size()-1).getX()+20,botBorders.get(botBorders.size()-1).getY()-1));
+                }
+            }
+        }
+    }
+
+    public void updateTopBorder()
+    {
+        if (playerTank.getScore()%50==0)
+        {
+            topBorderses.add(new TopBorders(BitmapFactory.decodeResource(Resources.getSystem(), R.drawable.brick02),topBorderses.get(topBorderses.size()-1).getX()+20,0,(int)(rand.nextDouble()*(maxBorHeight))+1));
+        }
+
+        for (int i=0 ; topBorderses.size()>i;i++)
+        {
+            topBorderses.get(i).update();
+            if (topBorderses.get(i).getX()<-20)
+            {
+                topBorderses.remove(i);
+                if (topBorderses.get(topBorderses.size()-1).getHeight()>=maxBorHeight)
+                {
+                    topDown = false;
+                }
+                if (topBorderses.get(topBorderses.size()-1).getHeight()<=minBorHeight)
+                {
+                    topDown = true;
+                }
+                //add larger height to border
+                if (topDown){
+
+                    topBorderses.add(new TopBorders(BitmapFactory.decodeResource(getResources(), R.drawable.brick02),topBorderses.get(topBorderses.size()-1).getX()+20,0
+                            ,topBorderses.get(topBorderses.size()-1).getHeight()+1));
+                }
+                //add smaller height
+                else {
+                    topBorderses.add(new TopBorders(BitmapFactory.decodeResource(getResources(),R.drawable.brick02),topBorderses.get(topBorderses.size()-1).getX()+20,0
+                            ,topBorderses.get(topBorderses.size()-1).getHeight()-1));
+
+                }
+            }
+        }
+
+    }
+    public void newGame(){
+        botBorders.clear();
+        topBorderses.clear();
+        bullets.clear();
+        smokes.clear();
+
+        minBorHeight = 5;
+        maxBorHeight = 30;
+
+        playerTank.resetScore();
+        playerTank.setY(height/2);
+
+        newGamestart = true;
     }
 
 

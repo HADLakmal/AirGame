@@ -2,6 +2,7 @@ package com.example.damindu.airgame;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Rect;
 
 /**
  * Created by Damindu on 2/5/2017.
@@ -19,7 +20,7 @@ public class PlayerTank extends GameObject {
     public PlayerTank(Bitmap res, int w, int h,int numFrame) {
         this.spriteSheet = res;
         x = 100;
-        y = GamePanel.width/2;
+        y = GamePanel.height/2-100;
         dy = 0;
         score = 0;
         width =w;
@@ -73,4 +74,10 @@ public class PlayerTank extends GameObject {
     public void setPlaying(Boolean b){playing = b;}
     public void resetDYA(){dy=0;}
     public void resetScore(){score=0;}
+
+    @Override
+    public Rect getRectangle(){
+
+        return new Rect(x-20,y+40,x+width-20,y+width-20);
+    }
 }
