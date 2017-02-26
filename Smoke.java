@@ -17,7 +17,7 @@ public class Smoke extends GameObject {
         super.y=y;
     }
     public void update(){
-        x-=10;
+        x+=10;
     }
     public void draw(Canvas canvas){
         Paint paint = new Paint();

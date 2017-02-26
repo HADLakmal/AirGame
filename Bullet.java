@@ -24,7 +24,7 @@ public class Bullet extends GameObject {
         width = w;
         height = h;
 
-        speed = 5+ (int)(rand.nextDouble()*score/30);
+        speed = 8+ (int)(rand.nextDouble()*score/30);
 
         //cap bullet speed
         if(speed>40) speed =40;
@@ -42,7 +42,7 @@ public class Bullet extends GameObject {
     }
 
     public void update(){
-        x-=speed;
+        x+=speed;
         animation.update();
     }
 

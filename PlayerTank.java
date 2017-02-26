@@ -19,7 +19,7 @@ public class PlayerTank extends GameObject {
 
     public PlayerTank(Bitmap res, int w, int h,int numFrame) {
         this.spriteSheet = res;
-        x = 100;
+        x = GamePanel.width-500;
         y = GamePanel.height/2-100;
         dy = 0;
         score = 0;
@@ -46,7 +46,6 @@ public class PlayerTank extends GameObject {
     }
     public void update(){
         long elapsed =(System.nanoTime()-startTime)/1000000;
-        System.out.println(this.getY());
         if (elapsed>100){
             score++;
             startTime = System.nanoTime();
@@ -79,6 +78,6 @@ public class PlayerTank extends GameObject {
     @Override
     public Rect getRectangle(){
 
-        return new Rect(x-20,y+40,x+width-20,y+width-20);
+        return new Rect(x,y+40,x+width-20,y+width-20);
     }
 }
