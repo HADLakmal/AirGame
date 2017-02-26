@@ -46,6 +46,7 @@ public class PlayerTank extends GameObject {
     }
     public void update(){
         long elapsed =(System.nanoTime()-startTime)/1000000;
+        System.out.println(this.getY());
         if (elapsed>100){
             score++;
             startTime = System.nanoTime();

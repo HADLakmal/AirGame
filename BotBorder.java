@@ -15,8 +15,8 @@ public class BotBorder extends GameObject
         this.x=x;
         this.y =y;
 
-        width = 17;
-        height = 200;
+        width = 20;
+        height = 400;
         dx= GamePanel.moveSpeed;
         this.image = Bitmap.createBitmap(image,0,0,width,height);
     }

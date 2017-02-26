@@ -31,8 +31,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback
     private ArrayList<Bullet> bullets;
     private long bulletStrat;
 
-    public static final int width = 1300;
-    public static final int height = 860;
+    public static final int width = 2000;
+    public static final int height = 1480;
     public static final int moveSpeed = -5;
     Random rand = new Random();
 
@@ -80,11 +80,15 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback
 
         //Borders init
         topBorderses = new ArrayList<TopBorders>();
+
         botBorders = new ArrayList<BotBorder>();
+
+
 
         //we can safetly strat the game loop
         thread.setRunning(true);
         thread.start();
+
     }
 
     @Override
@@ -140,6 +144,21 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback
             if (maxBorHeight>height/4) maxBorHeight = height/4;
             minBorHeight = 5 + playerTank.getScore()/difficulty;
 
+            //detect collition
+            for (int x=0; x<topBorderses.size();x++)
+            {
+                if (collision(topBorderses.get(x),playerTank))
+                {
+                    playerTank.setPlaying(false);
+                }
+            }
+            for (int x=0; x<botBorders.size();x++)
+            {
+                if (collision(botBorders.get(x),playerTank))
+                {
+                    playerTank.setPlaying(false);
+                }
+            }
             //update borders
             updateBottomBorder();
             updateTopBorder();
@@ -224,6 +243,14 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback
             canvas.restoreToCount(savedState);
 
         }
+        else
+        {
+            newGamestart = false;
+            if (!newGamestart)
+            {
+                newGame();
+            }
+        }
     }
     public boolean collision(GameObject bullet , GameObject player)
     {
@@ -234,11 +261,16 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback
     public void updateBottomBorder()
     {
 
-        //every 100 point border up
-        if (playerTank.getScore()%100==0) botBorders.add(new BotBorder(BitmapFactory.decodeResource(getResources(),R.drawable.brick02),botBorders.get(botBorders.size()-1).getX()+20,(int)((rand.nextDouble()*maxBorHeight)+(height-maxBorHeight))));
+
+        //every 10 point border up
+        if (playerTank.getScore()%100==0) {
+            botBorders.add(new BotBorder(BitmapFactory.decodeResource(getResources(), R.drawable.brickn),botBorders.get(botBorders.size()-1).getX()+20
+                    ,(int)(rand.nextDouble()*maxBorHeight)+(height-250-maxBorHeight)));
+        }
 
         for (int i=0 ; botBorders.size()>i;i++)
         {
+
             botBorders.get(i).update();
             if (botBorders.get(i).getX()<-20)
             {
@@ -254,14 +286,15 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback
                 //add larger height to border
                 if (botDown){
 
-                    botBorders.add(new BotBorder(BitmapFactory.decodeResource(getResources(), R.drawable.brick02),botBorders.get(botBorders.size()-1).getX()+20,botBorders.get(botBorders.size()-1).getY()+1));
+                    botBorders.add(new BotBorder(BitmapFactory.decodeResource(getResources(), R.drawable.brickn),botBorders.get(botBorders.size()-1).getX()+20,botBorders.get(botBorders.size()-1).getY()+1));
                 }
                 //add smaller height
                 else {
 
-                    botBorders.add(new BotBorder(BitmapFactory.decodeResource(getResources(),R.drawable.brick02),botBorders.get(botBorders.size()-1).getX()+20,botBorders.get(botBorders.size()-1).getY()-1));
+                    botBorders.add(new BotBorder(BitmapFactory.decodeResource(getResources(), R.drawable.brickn), botBorders.get(botBorders.size() - 1).getX() + 20, botBorders.get(botBorders.size() - 1).getY() - 1));
                 }
             }
+
         }
     }
 
@@ -269,7 +302,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback
     {
         if (playerTank.getScore()%50==0)
         {
-            topBorderses.add(new TopBorders(BitmapFactory.decodeResource(Resources.getSystem(), R.drawable.brick02),topBorderses.get(topBorderses.size()-1).getX()+20,0,(int)(rand.nextDouble()*(maxBorHeight))+1));
+            topBorderses.add(new TopBorders(BitmapFactory.decodeResource(Resources.getSystem(), R.drawable.brickn),topBorderses.get(topBorderses.size()-1).getX()+20,0,(int)(rand.nextDouble()*(maxBorHeight))+1));
         }
 
         for (int i=0 ; topBorderses.size()>i;i++)
@@ -289,16 +322,17 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback
                 //add larger height to border
                 if (topDown){
 
-                    topBorderses.add(new TopBorders(BitmapFactory.decodeResource(getResources(), R.drawable.brick02),topBorderses.get(topBorderses.size()-1).getX()+20,0
+                    topBorderses.add(new TopBorders(BitmapFactory.decodeResource(getResources(), R.drawable.brickn),topBorderses.get(topBorderses.size()-1).getX()+20,0
                             ,topBorderses.get(topBorderses.size()-1).getHeight()+1));
                 }
                 //add smaller height
                 else {
-                    topBorderses.add(new TopBorders(BitmapFactory.decodeResource(getResources(),R.drawable.brick02),topBorderses.get(topBorderses.size()-1).getX()+20,0
-                            ,topBorderses.get(topBorderses.size()-1).getHeight()-1));
+                    topBorderses.add(new TopBorders(BitmapFactory.decodeResource(getResources(), R.drawable.brickn), topBorderses.get(topBorderses.size() - 1).getX() + 20, 0
+                            , topBorderses.get(topBorderses.size() - 1).getHeight() - 1));
 
                 }
             }
+
         }
 
     }
@@ -313,6 +347,31 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback
 
         playerTank.resetScore();
         playerTank.setY(height/2);
+
+        //top border continous
+        for (int x =0 ; x*20<width+20;x++)
+        {
+            //init top border
+            if (x==0){
+                topBorderses.add(new TopBorders(BitmapFactory.decodeResource(getResources(),R.drawable.brickn),x*20,0,10));
+            }
+            else
+            {
+                topBorderses.add(new TopBorders(BitmapFactory.decodeResource(getResources(),R.drawable.brickn),x*20,0,topBorderses.get(x-1).getHeight()+1));
+            }
+        }
+        //botom border continous
+        for (int x =0 ; x*20<width+20;x++)
+        {
+            //init top border
+            if (x==0){
+                botBorders.add(new BotBorder(BitmapFactory.decodeResource(getResources(),R.drawable.brickn),x*20,height-maxBorHeight));
+            }
+            else
+            {
+                botBorders.add(new BotBorder(BitmapFactory.decodeResource(getResources(),R.drawable.brickn),x*20,botBorders.get(x-1).getY()-1));
+            }
+        }
 
         newGamestart = true;
     }
