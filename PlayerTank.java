@@ -51,8 +51,8 @@ public class PlayerTank extends GameObject {
             startTime = System.nanoTime();
         }
         animation.update();
-        if (up) dy+=1;
-        if (down) dy+=1;
+        if (up) dy+=30;
+        if (down) dy-=30;
 
         if (dy>14) dy=14;
         if (dy<-14) dy = -14;

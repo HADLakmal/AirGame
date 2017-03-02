@@ -12,9 +12,12 @@ import android.view.MenuItem;
 import android.app.Activity;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 
 public class Game extends Activity {
+
+
 
 
     @Override
@@ -23,9 +26,11 @@ public class Game extends Activity {
         //turn title off
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         //set full screen
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         setContentView(new GamePanel(this));
+
+
 
     }
 
@@ -50,5 +55,6 @@ public class Game extends Activity {
 
         return super.onOptionsItemSelected(item);
     }
+
 
 }

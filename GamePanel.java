@@ -1,6 +1,7 @@
 package com.example.damindu.airgame;
 
 import android.annotation.SuppressLint;
+import android.app.Notification;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.BitmapFactory;
@@ -13,6 +14,7 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.Button;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -55,9 +57,14 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback
 
     private boolean newGamestart;
 
+    private  Button b;
+
+
 
     public GamePanel(Context context){
         super(context);
+
+        b = new Button(context);
 
         //add callback to the surfaceHolder to intercept event
         getHolder().addCallback(this);
@@ -73,7 +80,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback
     public void surfaceCreated(SurfaceHolder holder) {
 
         //add Background
-        background = new Background(BitmapFactory.decodeResource(getResources(), R.drawable.grass));
+        background = new Background(BitmapFactory.decodeResource(getResources(), R.drawable.stone));
         //iniziate the player
         playerTank = new PlayerTank(BitmapFactory.decodeResource(getResources(),R.drawable.tank),285,300,8);
         //add smoke
@@ -87,6 +94,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback
         topBorderses = new ArrayList<TopBorders>();
 
         botBorders = new ArrayList<BotBorder>();
+
+
 
 
 
@@ -126,12 +135,24 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback
                 playerTank.setPlaying(true);
             }
             else{
-                playerTank.setUp(true);
+                System.out.println(event.getX()+" "+ event.getY());
+                if ((width-300<(int)event.getX()+230&&(int)event.getX()+230<width-50)&&(height-450<(int)event.getY()+400&&(int)event.getY()+400<height-50))
+                {
+                    playerTank.setUp(true);
+                    playerTank.setDown(false);
+                }
+                if ((width-300<(int)event.getX()+230&&(int)event.getX()+230<width-50)&&(50<(int)event.getY()&&(int)event.getY() < 450))
+                {
+                    playerTank.setDown(true);
+                    playerTank.setUp(false);
+
+                }
             }
             return true;
         }
         if (event.getAction()==MotionEvent.ACTION_UP){
             playerTank.setUp(false);
+            playerTank.setDown(false);
             return true;
         }
         return super.onTouchEvent(event);
@@ -221,6 +242,11 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback
     }
     @Override
     public void draw(Canvas canvas){
+
+
+
+
+
         final float scaleFactorX = getWidth()/(width*1.f);
         final float scaleFactorY = getHeight()/(height*1.f);
         if (canvas!=null){
@@ -246,7 +272,17 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback
             for (BotBorder b : botBorders) b.draw(canvas);
             text(canvas);
 
+            //Button Paint
+            Paint p = new Paint();
+            p.setColor(Color.RED);
+            //Left Button
+            canvas.drawRect(width - 300, height - 450, width - 50, height - 50, p);
+            //Right Button
+            canvas.drawRect(width - 300, 50, width - 50, 450, p);
+            canvas.drawText("RIGHT",width-200,height-100,null);
+
             canvas.restoreToCount(savedState);
+
 
         }
         else
@@ -353,7 +389,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback
         if (playerTank.getScore()>bestScore) bestScore = playerTank.getScore();
 
         playerTank.resetScore();
-        playerTank.setY(height/2);
+        playerTank.setY(height / 2);
 
 
 
@@ -398,8 +434,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback
             Paint paint1 = new Paint();
             paint1.setColor(Color.WHITE);
             paint1.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
-            paint1.setTextSize(300);
-            canvas.drawText("PRESS TO START",width/2-100,height/2,paint1);
+            paint1.setTextSize(200);
+            canvas.drawText("PRESS TO START",100,height/2-200,paint1);
         }
     }
+
 }
